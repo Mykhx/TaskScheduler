@@ -19,7 +19,7 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 set(SOURCES ${TEST_SOURCES})
 
 ### Add executable ###
-add_executable(${PROJECT}_test ${TEST_SOURCES} DummyClassTest.cpp)
+add_executable(${PROJECT}_test ${TEST_SOURCES} DummyClassTest.cpp TestFixture.cpp)
 
 ### Link lib and googletest
 target_link_libraries(${PROJECT}_test PUBLIC ${CMAKE_PROJECT_NAME}_lib GTest::gtest_main)
