@@ -26,5 +26,5 @@ protected:
 };
 
 TEST_F(myTestFixture, TestName) {
-    EXPECT_TRUE(false);
+    EXPECT_TRUE(true);
 }

@@ -13,6 +13,7 @@
 #include <condition_variable>
 #include "ScheduledTask.h"
 #include "TaskSchedulerError.h"
+#include <iostream>
 
 using taskSchedulerQueue = std::priority_queue<ScheduledTask>;
 
@@ -21,14 +22,18 @@ private:
     taskSchedulerQueue taskQueue;
     std::atomic<bool> isRunning = false;
 
-    std::unique_ptr<std::thread> taskLoopThread;
+    std::unique_ptr<std::thread> taskLoopThread; // ToDo: try jthread
 
     std::mutex queueMutex;
     std::condition_variable_any queueCondition;
 
     void shutdown() {
         isRunning = false;
-        if (taskLoopThread->joinable()) taskLoopThread->join();
+        //taskLoopThread->request_stop();
+        if (taskLoopThread->joinable()) {
+            queueCondition.notify_all();
+            taskLoopThread->join();
+        }
     };
 
     void emplaceTask(ScheduledTask &&task) {
@@ -40,7 +45,9 @@ private:
         std::unique_lock<std::mutex> uniqueLock(queueMutex);
         while (isRunning and nextTaskNotReady()) {
             if (taskQueue.empty()) {
+                std::cout << " no task. waiting " << std::endl;
                 queueCondition.wait(uniqueLock);
+                std::cout << " waking up " << std::endl;
             } else {
                 queueCondition.wait_until(uniqueLock, taskQueue.top().getExecutionTime());
             }
@@ -53,22 +60,32 @@ private:
         }
     }
 
-public:
-    TaskScheduler() : isRunning(false),
-                      taskLoopThread(std::make_unique<std::thread>([this]() { this->startTaskLoop(); })) {};
-
-    void startTaskLoop() {
-        if (isRunning) throw TaskSchedulerError("Cannot start TaskScheduler. It is already running.");
-        delayedQueue();
-    }
-
-
     [[nodiscard]] bool nextTaskNotReady() const {
         return (taskQueue.empty() or taskQueue.top().getExecutionTime() < timeProvider::now());
     };
 
-    void startTaskLoopDetached() {
+public:
+    TaskScheduler() : isRunning(false),
+    taskLoopThread(std::make_unique<std::thread>([this]() { this->delayedQueue(); })) {};
+
+    ~TaskScheduler() {
+        std::cout << "call shutdown (dest)" << std::endl;
+        shutdown();
+        std::cout << "called shutdown (dest)" << std::endl;
+    }
+
+    void startTaskLoop() {
+        if (isRunning)
+            throw TaskSchedulerError("Cannot start TaskScheduler. It is already running.");
+        isRunning = true;
         taskLoopThread->detach();
+    }
+
+    void stopTaskLoop() {
+        std::cout << "is Running " << isRunning << std::endl;
+        if (!isRunning)
+            throw TaskSchedulerError("TaskScheduler stopped while not running.");
+        shutdown();
     }
 
     [[nodiscard]] bool schedulerIsRunning() const {

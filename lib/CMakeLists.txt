@@ -6,7 +6,7 @@ include_directories(TaskScheduler)
 # recursive search
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.h *.cpp)
 
-set(SOURCE_FILES ${SOURCES} TaskScheduler/TaskScheduler.cpp TaskScheduler/TaskScheduler.h)
+set(SOURCE_FILES ${SOURCES})
 
 include(CMakePrintHelpers)
 CMAKE_PRINT_VARIABLES(SOURCES)
