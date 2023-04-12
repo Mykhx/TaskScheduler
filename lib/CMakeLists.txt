@@ -1,0 +1,8 @@
+set(PROJECT ${CMAKE_PROJECT_NAME})
+
+# recursive search
+file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.h *.cpp)
+
+set(SOURCE_FILES ${SOURCES})
+
+add_library(${PROJECT}_lib STATIC ${SOURCE_FILES})
