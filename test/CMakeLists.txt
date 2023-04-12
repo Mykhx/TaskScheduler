@@ -14,12 +14,19 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+### include directories
+include_directories(TaskSchedulerTest)
+
 ### find all .h and .cpp files and set them as sources ###
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 set(SOURCES ${TEST_SOURCES})
 
+### print files
+include(CMakePrintHelpers)
+CMAKE_PRINT_VARIABLES(SOURCES)
+
 ### Add executable ###
-add_executable(${PROJECT}_test ${TEST_SOURCES} DummyClassTest.cpp TestFixture.cpp)
+add_executable(${PROJECT}_test ${TEST_SOURCES})
 
 ### Link lib and googletest
 target_link_libraries(${PROJECT}_test PUBLIC ${CMAKE_PROJECT_NAME}_lib GTest::gtest_main)
