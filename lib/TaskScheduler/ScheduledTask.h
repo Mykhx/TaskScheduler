@@ -1,7 +1,3 @@
-//
-// Created by mkehr on 12.04.2023.
-//
-
 #ifndef TASKSCHEDULER_SCHEDULEDTASK_H
 #define TASKSCHEDULER_SCHEDULEDTASK_H
 

@@ -1,7 +1,3 @@
-//
-// Created by mkehr on 12.04.2023.
-//
-
 #ifndef TASKSCHEDULER_TASKSCHEDULER_H
 #define TASKSCHEDULER_TASKSCHEDULER_H
 
@@ -44,7 +40,7 @@ private:
     void scheduledTaskInvoke() {
         std::cout << "Started delayed queue" << std::endl;
         std::unique_lock<std::mutex> uniqueLock(queueMutex);
-        std::cout << "Accquired mutex" << std::endl;
+        std::cout << "Acquired mutex" << std::endl;
 
         while (isRunning and nextTaskNotReady()) {
             if (taskQueue.empty()) {
