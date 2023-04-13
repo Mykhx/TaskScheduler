@@ -20,7 +20,7 @@ using taskSchedulerQueue = std::priority_queue<ScheduledTask>;
 class TaskScheduler {
 private:
     taskSchedulerQueue taskQueue;
-    std::atomic<bool> isRunning = false;
+    std::atomic<bool> isRunning;
 
     std::unique_ptr<std::thread> taskLoopThread; // ToDo: try jthread
 
@@ -92,8 +92,12 @@ public:
         return isRunning;
     }
 
-    void addTask(task executableAction, timePoint executionTime) {
-        emplaceTask({std::move(executableAction), executionTime});
+    [[nodiscard]] unsigned long long taskQueueSize() const {
+        return taskQueue.size();
+    }
+
+    void addTask(task&& executableAction, timePoint executionTime) {
+        emplaceTask({std::forward<task>(executableAction), executionTime});
         queueCondition.notify_all();
     }
 };
