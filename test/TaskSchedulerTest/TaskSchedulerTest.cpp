@@ -36,15 +36,12 @@ TEST(TaskSchedulerTest, taskLoopCanBeStoppedCleanelyAndRestarted) {
     TaskScheduler taskScheduler = TaskScheduler();
 
     auto initalState = taskScheduler.schedulerIsRunning();
-
     taskScheduler.startTaskLoop();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
     auto stateAfter50ms = taskScheduler.schedulerIsRunning();
 
     taskScheduler.stopTaskLoop();
-
     auto stateAfterStopping = taskScheduler.schedulerIsRunning();
 
     EXPECT_FALSE(initalState);
