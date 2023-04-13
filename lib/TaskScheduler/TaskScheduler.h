@@ -41,32 +41,51 @@ private:
         taskQueue.emplace(std::move(task));
     }
 
-    void delayedQueue() {
+    void scheduledTaskInvoke() {
+        std::cout << "Started delayed queue" << std::endl;
         std::unique_lock<std::mutex> uniqueLock(queueMutex);
+        std::cout << "Accquired mutex" << std::endl;
+
         while (isRunning and nextTaskNotReady()) {
             if (taskQueue.empty()) {
                 std::cout << " no task. waiting " << std::endl;
                 queueCondition.wait(uniqueLock);
                 std::cout << " waking up " << std::endl;
             } else {
+                std::cout << "waiting until task ready" << std::endl;
                 queueCondition.wait_until(uniqueLock, taskQueue.top().getExecutionTime());
+                std::cout << "waking up" << std::endl;
             }
         }
+        std::cout << "exited while loop" << std::endl;
 
         if (isRunning and !taskQueue.empty()) {
             auto task = taskQueue.top();
             taskQueue.pop();
             task();
+            std::cout << "executed task" << std::endl;
+        }
+    }
+
+    void executeDelayedQueue() {
+        while(isRunning) {
+            scheduledTaskInvoke();
         }
     }
 
     [[nodiscard]] bool nextTaskNotReady() const {
-        return (taskQueue.empty() or taskQueue.top().getExecutionTime() < timeProvider::now());
+        std::cout << " Waiting until " << std::chrono::duration_cast<std::chrono::milliseconds>(taskQueue.top().getExecutionTime().time_since_epoch()).count() << "\n";
+        std::cout << " Now          " << std::chrono::duration_cast<std::chrono::milliseconds>(timeProvider::now().time_since_epoch()).count() << "\n";
+        std::cout << " Remaining    " << std::chrono::duration_cast<std::chrono::milliseconds>(taskQueue.top().getExecutionTime().time_since_epoch() - timeProvider ::now().time_since_epoch()).count() << "\n";
+        std::cout << " Condition    " << std::boolalpha << (timeProvider::now() <= taskQueue.top().getExecutionTime())<< std::endl;
+        std::cout << " Queue size " << taskQueue.size() << std::endl;
+        return (taskQueue.empty() or timeProvider::now() <= taskQueue.top().getExecutionTime());
     };
 
 public:
     TaskScheduler() : isRunning(false),
-    taskLoopThread(std::make_unique<std::thread>([this]() { this->delayedQueue(); })) {};
+    taskLoopThread(std::make_unique<std::thread>([this]() {std::cout << "thread started" << std::endl;
+        this->executeDelayedQueue(); })) {};
 
     ~TaskScheduler() {
         std::cout << "call shutdown (dest)" << std::endl;
