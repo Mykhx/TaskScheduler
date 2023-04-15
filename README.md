@@ -1,4 +1,4 @@
-# TaskSchedulerRevamped
+# TaskScheduler
 A scheduler written in c++ for educational purposes only.
 Tasks may be scheduled once or as a repeated action.
 Upon start, the tasks are executed in by a thread, which
