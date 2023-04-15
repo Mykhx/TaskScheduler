@@ -116,3 +116,20 @@ TEST(TaskSchedulerTest, taskAreExecutedCorrectlyWhenSubsequentTaskBecomesReadyBe
     EXPECT_EQ(valueTargetSubsequentTask, 2);
 }
 
+TEST(TaskSchedulerTest, taskCanBeExecutedPeriodically) {
+    TaskScheduler taskScheduler = TaskScheduler();
+
+    std::atomic_int valueTargetTask{0};
+    auto repeatedTask = [&valueTargetTask](){valueTargetTask++;};
+    auto period = std::chrono::milliseconds(20);
+
+    taskScheduler.addTask(std::move(repeatedTask), timeProvider::now() + period, period);
+
+    taskScheduler.startTaskLoop();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    taskScheduler.stopTaskLoop();
+
+    EXPECT_EQ(valueTargetTask, 4);
+}

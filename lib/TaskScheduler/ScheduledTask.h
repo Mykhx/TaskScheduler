@@ -9,6 +9,7 @@
 
 using timeProvider = std::chrono::high_resolution_clock;
 using timePoint = std::chrono::time_point<timeProvider>;
+using duration = timeProvider::duration;
 using task = std::function<void()>;
 
 class ScheduledTask {

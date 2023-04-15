@@ -95,6 +95,14 @@ public:
         emplaceTask({std::forward<task>(executableAction), executionTime});
         queueCondition.notify_all();
     }
+
+    void addTask(task&& executableAction, timePoint executionTime, duration period) {
+        auto repeatedTask = [this, &executableAction, executionTime, period] () {
+            executableAction();
+            this->addTask(std::move(executableAction), executionTime + period, period);
+        };
+        addTask(std::move(repeatedTask), executionTime);
+    }
 };
 
 #endif //TASKSCHEDULER_TASKSCHEDULER_H
