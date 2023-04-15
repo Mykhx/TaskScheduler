@@ -49,6 +49,7 @@ TEST(TaskSchedulerTest, taskLoopCanBeStoppedCleanelyAndRestarted) {
     EXPECT_FALSE(stateAfterStopping);
 }
 
+// ToDo: redesign this test. Spurious behaviour.
 TEST(TaskSchedulerTest, tasksAreExecutedAccordingToGivenExecutionTime) {
     TaskScheduler taskScheduler = TaskScheduler();
 
