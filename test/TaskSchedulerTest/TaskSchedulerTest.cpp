@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "TaskScheduler/TaskScheduler.h"
-/*
+
 TEST(TaskSchedulerTest, throwsIfTryStopWhileNotRunning) {
     TaskScheduler taskScheduler = TaskScheduler();
     EXPECT_FALSE(taskScheduler.schedulerIsRunning());
@@ -13,7 +13,7 @@ TEST(TaskSchedulerTest, throwsIftryStartWhileRunning) {
     EXPECT_NO_THROW(taskScheduler.startTaskLoop());
     EXPECT_TRUE(taskScheduler.schedulerIsRunning());
 }
-*/
+
 TEST(TaskSchedulerTest, newTasksCanBeAdded) {
     TaskScheduler taskScheduler = TaskScheduler();
 
