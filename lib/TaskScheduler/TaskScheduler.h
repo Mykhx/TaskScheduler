@@ -35,6 +35,8 @@ private:
 
 public:
     TaskScheduler() : isRunning(false) {}
+    TaskScheduler(const TaskScheduler&) = delete;
+    TaskScheduler& operator=(const TaskScheduler&) = delete;
     ~TaskScheduler() {
         shutdown();
     }

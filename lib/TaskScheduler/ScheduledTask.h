@@ -19,7 +19,6 @@ private:
 
 public:
     ScheduledTask();
-
     ScheduledTask(task executableAction, timePoint executionTime);
 
     void operator()();
