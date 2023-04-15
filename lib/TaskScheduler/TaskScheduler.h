@@ -57,13 +57,6 @@ private:
     }
 
     [[nodiscard]] bool nextTaskNotReady() const {
-        /*if (!taskQueue.empty()) {
-            std::cout << " Waiting until " << std::chrono::duration_cast<std::chrono::milliseconds>(taskQueue.top().getExecutionTime().time_since_epoch()).count() << "\n";
-            std::cout << " Now          " << std::chrono::duration_cast<std::chrono::milliseconds>(timeProvider::now().time_since_epoch()).count() << "\n";
-            std::cout << " Remaining    " << std::chrono::duration_cast<std::chrono::milliseconds>(taskQueue.top().getExecutionTime().time_since_epoch() - timeProvider ::now().time_since_epoch()).count() << "\n";
-            std::cout << " Condition    " << std::boolalpha << (timeProvider::now() <= taskQueue.top().getExecutionTime()) << "\n";
-            std::cout << " Queue size " << taskQueue.size() << "\n";
-        }*/
         return (taskQueue.empty() or timeProvider::now() <= taskQueue.top().getExecutionTime());
     };
 
