@@ -51,6 +51,7 @@ private:
             auto task = taskQueue.top();
             taskQueue.pop();
             //task();
+            // should consider using a pointer. What happens if thread is not yet finished with task and next task is set?
             taskExecutionThread = std::jthread(task);
             taskExecutionThread.detach();
         }

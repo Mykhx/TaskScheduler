@@ -53,10 +53,10 @@ TEST(TaskSchedulerTest, tasksAreExecutedAccordingToGivenExecutionTime) {
     TaskScheduler taskScheduler = TaskScheduler();
 
     std::atomic<int> value{0};
-    auto task1 = [&value] (){value = 1; std::cerr << "called fct 1\n";};
-    auto task2 = [&value] (){value = 2; std::cerr << "called fct 2\n";};
-    auto task3 = [&value] (){value = 3; std::cerr << "called fct 3\n";};
-    auto task4 = [&value] (){value = 4; std::cerr << "called fct 4\n";};
+    auto task1 = [&value] (){value = 1;};
+    auto task2 = [&value] (){value = 2;};
+    auto task3 = [&value] (){value = 3;};
+    auto task4 = [&value] (){value = 4;};
     auto executionTime1 = timeProvider::now();
     auto executionTime2 = timeProvider::now() + std::chrono::milliseconds(200);
     auto executionTime3 = timeProvider::now() + std::chrono::milliseconds(300);
@@ -88,3 +88,30 @@ TEST(TaskSchedulerTest, tasksAreExecutedAccordingToGivenExecutionTime) {
     EXPECT_EQ(valueAfterTask3, 3);
     EXPECT_EQ(valueAfterStoppedTaskScheduler, 3);
 }
+
+TEST(TaskSchedulerTest, taskAreExecutedCorrectlyWhenSubsequentTaskBecomesReadyBeforeItHasFinished) {
+    TaskScheduler taskScheduler = TaskScheduler();
+
+    int valueTargetSlowTask = 0;
+    int valueTargetSubsequentTask = 0;
+    auto slowTask = [&valueTargetSlowTask] (){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        valueTargetSlowTask = 1;
+    };
+    auto subsequentTask = [&valueTargetSubsequentTask] (){valueTargetSubsequentTask = 2;};
+    auto executionTimeSlowTask = timeProvider::now();
+    auto executionTimeSubsequentTask = timeProvider::now() + std::chrono::milliseconds(50);
+
+    taskScheduler.addTask(std::move(slowTask), executionTimeSlowTask);
+    taskScheduler.addTask(std::move(subsequentTask), executionTimeSubsequentTask);
+
+    taskScheduler.startTaskLoop();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    taskScheduler.stopTaskLoop();
+
+    EXPECT_EQ(valueTargetSlowTask, 1);
+    EXPECT_EQ(valueTargetSubsequentTask, 2);
+}
+
