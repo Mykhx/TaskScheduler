@@ -124,7 +124,7 @@ TEST(TaskSchedulerTest, taskCanBeExecutedPeriodically) {
     taskScheduler.addTask(std::move(repeatedTask), timeProvider::now() + period, period);
 
     taskScheduler.startTaskLoop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(102));
     taskScheduler.stopTaskLoop();
 
     EXPECT_EQ(valueTargetTask, 4);
