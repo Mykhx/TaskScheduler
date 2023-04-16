@@ -68,7 +68,14 @@ void TaskScheduler::addTask(task &&executableAction, timePoint executionTime) {
 void TaskScheduler::addTask(task &&executableAction, timePoint executionTime, duration period) {
     auto repeatedTask = [this, &executableAction, executionTime, period] () {
         executableAction();
-        this->addTask(std::move(executableAction), executionTime + period, period);
+        if (isRunning)
+            this->addTask(std::move(executableAction), executionTime + period, period);
     };
     addTask(std::move(repeatedTask), executionTime);
+}
+
+void TaskScheduler::clearTaskQueue() {
+    if (isRunning)
+        stopTaskLoop();
+    taskQueue = taskSchedulerQueue();
 }

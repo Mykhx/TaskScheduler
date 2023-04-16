@@ -49,6 +49,8 @@ public:
 
     void addTask(task&& executableAction, timePoint executionTime);
     void addTask(task&& executableAction, timePoint executionTime, duration period);
+
+    void clearTaskQueue();
 };
 
 #endif //TASKSCHEDULER_TASKSCHEDULER_H
