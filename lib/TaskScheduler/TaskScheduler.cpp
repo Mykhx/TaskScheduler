@@ -27,7 +27,6 @@ void TaskScheduler::executeDelayedQueue(const std::stop_token &stopToken) {
         auto task = taskQueue.top();
         taskQueue.pop();
         //task();
-        // should consider using a pointer. What happens if thread is not yet finished with task and next task is set?
         taskExecutionThread = std::jthread(task);
         taskExecutionThread.detach();
     }
@@ -40,8 +39,8 @@ bool TaskScheduler::nextTaskNotReady() const {
 void TaskScheduler::startTaskLoop() {
     if (isRunning)
         throw TaskSchedulerError("Cannot start TaskScheduler. It is already running.");
-    taskLoopThread = std::jthread([this](const std::stop_token& stopToken){
-        while(!stopToken.stop_requested()) this->executeDelayedQueue(stopToken);
+    taskLoopThread = std::jthread([this](const std::stop_token &stopToken) {
+        while (!stopToken.stop_requested()) this->executeDelayedQueue(stopToken);
     });
     isRunning = true;
 }
@@ -66,16 +65,14 @@ void TaskScheduler::addTask(task &&executableAction, timePoint executionTime) {
 }
 
 void TaskScheduler::addTask(task &&executableAction, timePoint executionTime, duration period) {
-    auto repeatedTask = [this, &executableAction, executionTime, period] () {
+    auto repeatedTask = [this, &executableAction, executionTime, period]() {
         executableAction();
-        if (isRunning)
-            this->addTask(std::move(executableAction), executionTime + period, period);
+        this->addTask(std::move(executableAction), executionTime + period, period);
     };
     addTask(std::move(repeatedTask), executionTime);
 }
 
 void TaskScheduler::clearTaskQueue() {
-    if (isRunning)
-        stopTaskLoop();
+    std::scoped_lock<std::mutex> scopedLock(queueMutex);
     taskQueue = taskSchedulerQueue();
 }

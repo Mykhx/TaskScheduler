@@ -2,8 +2,8 @@
 
 ScheduledTask::ScheduledTask() : executableTask([]() {}), executionTime(timeProvider::now()) {}
 
-ScheduledTask::ScheduledTask(task executableAction, timePoint executionTime) : executableTask(std::move(executableAction)),
-                                                                               executionTime(executionTime) {}
+ScheduledTask::ScheduledTask(task executableAction, timePoint executionTime) : executableTask(
+        std::move(executableAction)), executionTime(executionTime) {}
 
 void ScheduledTask::operator()() {
     executableTask();
