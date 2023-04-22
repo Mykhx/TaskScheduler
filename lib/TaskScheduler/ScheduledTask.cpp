@@ -1,12 +1,17 @@
 #include "ScheduledTask.h"
 
-ScheduledTask::ScheduledTask() : executableTask([]() {}), executionTime(timeProvider::now()) {}
+#include <utility>
 
-ScheduledTask::ScheduledTask(task executableAction, timePoint executionTime) : executableTask(
-        std::move(executableAction)), executionTime(executionTime) {}
+ScheduledTask::ScheduledTask()
+: sharedExecutableTaskPtr(std::make_shared<task>([]{})),
+executionTime(timeProvider::now()) {}
+
+ScheduledTask::ScheduledTask(task executableAction, timePoint executionTime)
+: sharedExecutableTaskPtr(std::make_shared<task>(std::move(executableAction))),
+        executionTime(executionTime) {}
 
 void ScheduledTask::operator()() {
-    executableTask();
+    std::invoke(*sharedExecutableTaskPtr);
 }
 
 bool ScheduledTask::operator<(const ScheduledTask &other) const {
@@ -16,3 +21,8 @@ bool ScheduledTask::operator<(const ScheduledTask &other) const {
 timePoint ScheduledTask::getExecutionTime() const {
     return executionTime;
 }
+
+ScheduledTask::ScheduledTask(sharedTaskPtr sharedTask, timePoint executionTime)
+: sharedExecutableTaskPtr(std::move(sharedTask)),
+executionTime(executionTime) {}
+

@@ -17,8 +17,8 @@ TEST(TaskSchedulerTest, throwsIftryStartWhileRunning) {
 TEST(TaskSchedulerTest, newTasksCanBeAdded) {
     TaskScheduler taskScheduler = TaskScheduler();
 
-    auto task1 = [] (){/* default */};
-    auto task2 = [] (){/* default */};
+    auto task1 = []() {/* default */};
+    auto task2 = []() {/* default */};
     auto executionTime = timeProvider::now();
 
     auto initialSize = taskScheduler.taskQueueSize();
@@ -54,10 +54,10 @@ TEST(TaskSchedulerTest, tasksAreExecutedAccordingToGivenExecutionTime) {
     TaskScheduler taskScheduler = TaskScheduler();
 
     std::atomic<int> value{0};
-    auto task1 = [&value] (){value = 1;};
-    auto task2 = [&value] (){value = 2;};
-    auto task3 = [&value] (){value = 3;};
-    auto task4 = [&value] (){value = 4;};
+    auto task1 = [&value]() { value = 1; };
+    auto task2 = [&value]() { value = 2; };
+    auto task3 = [&value]() { value = 3; };
+    auto task4 = [&value]() { value = 4; };
     auto executionTime1 = timeProvider::now();
     auto executionTime2 = timeProvider::now() + std::chrono::milliseconds(200);
     auto executionTime3 = timeProvider::now() + std::chrono::milliseconds(300);
@@ -95,11 +95,11 @@ TEST(TaskSchedulerTest, taskAreExecutedCorrectlyWhenSubsequentTaskBecomesReadyBe
 
     int valueTargetSlowTask = 0;
     int valueTargetSubsequentTask = 0;
-    auto slowTask = [&valueTargetSlowTask] (){
+    auto slowTask = [&valueTargetSlowTask]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         valueTargetSlowTask = 1;
     };
-    auto subsequentTask = [&valueTargetSubsequentTask] (){valueTargetSubsequentTask = 2;};
+    auto subsequentTask = [&valueTargetSubsequentTask]() { valueTargetSubsequentTask = 2; };
     auto executionTimeSlowTask = timeProvider::now();
     auto executionTimeSubsequentTask = timeProvider::now() + std::chrono::milliseconds(50);
 
@@ -118,13 +118,13 @@ TEST(TaskSchedulerTest, taskCanBeExecutedPeriodically) {
     TaskScheduler taskScheduler = TaskScheduler();
 
     std::atomic_int valueTargetTask{0};
-    auto repeatedTask = [&valueTargetTask](){valueTargetTask++;};
+    auto repeatedTask = [&valueTargetTask]() { valueTargetTask++; };
     auto period = std::chrono::milliseconds(20);
 
     taskScheduler.addTask(std::move(repeatedTask), timeProvider::now() + period, period);
 
     taskScheduler.startTaskLoop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(102));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     taskScheduler.stopTaskLoop();
 
     EXPECT_EQ(valueTargetTask, 4);

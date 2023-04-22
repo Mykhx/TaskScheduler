@@ -33,6 +33,10 @@ private:
 
     [[nodiscard]] bool nextTaskNotReady() const;;
 
+    void addTask(sharedTaskPtr sharedTask, timePoint executionTime);
+
+    void addTask(const sharedTaskPtr &sharedTask, timePoint executionTime, duration period);
+
 public:
     TaskScheduler() : isRunning(false) {}
 

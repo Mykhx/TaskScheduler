@@ -1,6 +1,8 @@
 
 #include "TaskScheduler.h"
 
+#include <utility>
+
 void TaskScheduler::shutdown() {
     isRunning = false;
     taskLoopThread.request_stop();
@@ -64,12 +66,26 @@ void TaskScheduler::addTask(task &&executableAction, timePoint executionTime) {
     queueCondition.notify_all();
 }
 
+void TaskScheduler::addTask(sharedTaskPtr sharedTask, timePoint executionTime) {
+    emplaceTask({std::move(sharedTask), executionTime});
+    queueCondition.notify_all();
+}
+
 void TaskScheduler::addTask(task &&executableAction, timePoint executionTime, duration period) {
-    auto repeatedTask = [this, &executableAction, executionTime, period]() {
-        executableAction();
-        this->addTask(std::move(executableAction), executionTime + period, period);
+    addTask(std::make_shared<task>(executableAction), executionTime, period);
+}
+
+// todo: check if closures might work here (increase execution time)
+/*
+ * [time, period] () mutable { time+=period; }
+ * or something similar
+ */
+void TaskScheduler::addTask(const sharedTaskPtr &sharedTask, timePoint executionTime, duration period) {
+    auto repeatedTask = [this, sharedTask, executionTime, period]() {
+        std::invoke(*sharedTask);
+        this->addTask(sharedTask, executionTime + period, period);
     };
-    addTask(std::move(repeatedTask), executionTime);
+    addTask(std::move(std::make_shared<task>(repeatedTask)), executionTime);
 }
 
 void TaskScheduler::clearTaskQueue() {
